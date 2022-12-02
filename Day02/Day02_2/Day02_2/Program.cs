@@ -15,11 +15,7 @@ var resultBias = new Dictionary<char, int>()
 
 int score = File.ReadAllLines("input.txt")
     .Select(line => (line[0], line[2]))
-    .Select(item => { 
-            var result = ((item.Item1 - 'A') + resultBias[item.Item2]) % 3 + 1 + (item.Item2 - 'X') * 3; 
-            Console.WriteLine($"{item}  {result}");
-        return result;
-    })
+    .Select(item => ((item.Item1 - 'A') + resultBias[item.Item2]) % 3 + 1 + (item.Item2 - 'X') * 3)
     .Sum();
 
 Console.WriteLine($"Score: {score}");
