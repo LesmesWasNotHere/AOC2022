@@ -1,5 +1,4 @@
-﻿//8394
-using System.Linq;
+﻿using System.Linq;
 
 var priority = File.ReadLines("input.txt").Select(x =>
 {
