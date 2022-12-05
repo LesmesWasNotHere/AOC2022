@@ -1,4 +1,4 @@
-﻿//Stack numbers 0..8
+﻿//JSDHQMZGF
 let parseStack (lines: string array) (stackNumber:int) =
     let pos = stackNumber * 4 + 1
     [|for line in lines do if line[pos] <> ' ' then line[pos]|]
@@ -7,12 +7,12 @@ let parseStacks lines =
     [|for i in [0..8] do parseStack lines i|]
 
 let parseMove (line: string) =
-    line[5..].Replace(" from", "").Replace(" to", "").Split(" ") |> Array.map int |> Array.toList
+    line[5..].Replace(" from", "").Replace(" to", "").Split(" ") |> Array.map int |> (fun x -> (x[0], x[1]-1, x[2]-1))
 
 let parseMoves (lines: string array) =
     [|for m in lines do parseMove m|]
 
-let doMove (stacks: char array array) count sourceS toS =
+let doMove (stacks: char array array) (count,sourceS,toS) =
     [|for i in [0..8] do
         if (i = sourceS) then
             stacks[i][count..]
@@ -22,17 +22,16 @@ let doMove (stacks: char array array) count sourceS toS =
             stacks[i]
     |]
 
+let rec calcMoves (remainingMoves: (int*int*int) array) (stacks: char array array) =
+    if (remainingMoves.Length = 0) then
+        stacks
+    else
+        calcMoves remainingMoves[1..] (doMove stacks remainingMoves[0])
+
 let lines = System.IO.File.ReadAllLines("input.txt")
 
-let mutable stacks = parseStacks lines[0..7]
-let moves = parseMoves lines[10..]
+let resultStacks = calcMoves (parseMoves lines[10..]) (parseStacks lines[0..7])
 
-for move in moves do
-    let count = move[0]
-    let fromS = move[1]
-    let toS = move[2]    
-    stacks <- doMove stacks count (fromS-1) (toS-1) 
-
-let result = stacks |> Array.map (fun x -> x[0]) |> System.String.Concat
+let result = resultStacks |> Array.map (fun x -> x[0]) |> System.String.Concat
 
 printfn "%s" result
