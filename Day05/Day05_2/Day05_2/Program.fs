@@ -30,8 +30,6 @@ let rec calcMoves (remainingMoves: (int*int*int) array) (stacks: char array arra
 
 let lines = System.IO.File.ReadAllLines("input.txt")
 
-let resultStacks = calcMoves (parseMoves lines[10..]) (parseStacks lines[0..7])
-
-let result = resultStacks |> Array.map (fun x -> x[0]) |> System.String.Concat
+let result = calcMoves (parseMoves lines[10..]) (parseStacks lines[0..7]) |> Array.map (fun x -> x[0]) |> System.String.Concat
 
 printfn "%s" result
