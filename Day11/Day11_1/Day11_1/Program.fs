@@ -1,6 +1,8 @@
-﻿type monkey =
+﻿//There should be a better solution without mutable lists
+
+type monkey =
     new (it, op, oppar, dsquare, divby, mtrue, mfalse) = {items = it; operator = op; operatorParameter = oppar; doSquareOperator = dsquare; divisibleBy = divby; monkeyIfTrue = mtrue; monkeyIfFalse = mfalse}
-    val items:int list
+    val mutable items:int list
     val operator:char
     val operatorParameter:int
     val doSquareOperator:bool
@@ -24,7 +26,39 @@ let rec parseMonkeys (lines: string array) =
     else
         Array.append [|parseMonkey lines[0..6]|] (parseMonkeys lines[7..])
 
+let calcWorryLevelOperation (monkey:monkey) (worryLevel:int):int =
+    if (monkey.doSquareOperator) then
+        worryLevel*worryLevel
+    else
+        match monkey.operator with
+            | '+' -> worryLevel + monkey.operatorParameter
+            | '-' -> worryLevel - monkey.operatorParameter
+            | '*' -> worryLevel * monkey.operatorParameter
+            | _   -> worryLevel / monkey.operatorParameter
+
+let inspectItem (monkeys: monkey array) (monkey:monkey) (item:int): int = 
+    let worryLevelAfterUpdate: int = (calcWorryLevelOperation monkey item) / 3
+    let recipientMonkey = if (worryLevelAfterUpdate % monkey.divisibleBy = 0) then monkey.monkeyIfTrue else monkey.monkeyIfFalse
+    monkeys[recipientMonkey].items <- List.append monkeys[recipientMonkey].items [worryLevelAfterUpdate]
+    1
+
+//Returns inspectioned items
+let rec inspectItems (monkeys: monkey array) (monkey:monkey) (items:int list): int =
+    if (items.IsEmpty) then
+        0
+    else
+        (inspectItem monkeys monkey items.Head) + (inspectItems monkeys monkey items.Tail)
+        
+//inspected items
+let calculateRound (monkeys: monkey array) (monkey:monkey): int =
+    let inspectedItems = inspectItems monkeys monkey monkey.items
+    monkey.items <- []    
+    inspectedItems
+    
 let monkeys = System.IO.File.ReadAllLines("input.txt") |> parseMonkeys
 
-// For more information see https://aka.ms/fsharp-console-apps
-printfn "Hello from F#"
+let inspectedItemsByRound = [|for i in [1..20] do  [|for monkey in monkeys do calculateRound monkeys monkey|]|]
+
+let orderedInspectedItems = Array.reduce (fun (x:int array) (y: int array) -> [|for i in [0..(x.Length-1)] do x[i] + y[i]|]) inspectedItemsByRound |> Array.sortDescending
+
+printfn "Result: %d" (orderedInspectedItems[0] * orderedInspectedItems[1])
