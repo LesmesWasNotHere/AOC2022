@@ -1,5 +1,7 @@
-﻿let heuristic (map:char array2d) ((y,x): (int*int)) ((desty,destx): (int*int)) =
-    abs (desty-y) + abs (destx - x)
+﻿//I used a recursive A* 
+
+let heuristic (map:char array2d) ((y,x): (int*int)) ((desty,destx): (int*int)) =
+    abs (desty-y) + abs (destx-x)
 
 type node = 
     struct
